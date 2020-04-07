@@ -1,0 +1,53 @@
+proxy_cache_path  /var/cache/nginx/systemet levels=1 keys_zone=systemet:10m;
+
+server {
+
+  server_name api.hejsan.xyz;
+  listen 443 ssl http2;
+  listen [::]:443 ssl http2;
+
+  include snippets/ssl-tjenixen.conf;
+  include snippets/ssl-params.conf;
+  include snippets/certbot.conf;
+  include snippets/security-headers.conf;
+
+  root /var/www/html/;
+  index api.html;
+
+  location /systemet {
+	proxy_cache systemet;
+	add_header Cache-Control "no-cache, must-revalidate, max-age=0";	
+        proxy_cache_use_stale updating;
+	proxy_cache_lock on;
+	proxy_cache_valid any 30s;
+
+    rewrite ^/systemet(.*) $1 break;
+    proxy_pass http://127.0.0.1:30000/;    
+    include snippets/proxy.conf;
+
+  }
+
+  location /serble/ {
+    rewrite ^/serble(.*) $1 break;
+    proxy_pass http://127.0.0.1:8000/;
+    include snippets/proxy.conf;
+  }
+
+  location /dohi/ {
+	add_header Cache-Control "no-cache, must-revalidate, max-age=0";	
+        proxy_cache_use_stale updating;
+	proxy_cache_lock on;
+	proxy_cache_valid any 30s;
+
+	rewrite ^/dohi(.*) $1 break;
+	proxy_pass http://127.0.0.1:4000/;
+	include snippets/proxy.conf;
+  }
+
+  location / {
+    proxy_pass http://192.168.1.71:8096/;    
+    include snippets/proxy.conf;
+##	rewrite ^ /api.html break;
+  }
+  
+}

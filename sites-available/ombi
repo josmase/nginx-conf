@@ -1,0 +1,18 @@
+proxy_cache_path  /var/cache/nginx/ombi levels=1 keys_zone=ombi:10m;
+
+server {
+
+  server_name ombi.hejsan.xyz;
+  listen 443 ssl http2;
+  listen [::]:443 ssl http2;
+
+  include snippets/ssl-tjenixen.conf;
+  include snippets/ssl-params.conf;
+  include snippets/certbot.conf;
+  include snippets/security-headers.conf;
+
+  location / {
+	proxy_pass http://192.168.1.188:3579;
+#	include snippets/proxy.conf;
+  }  
+}

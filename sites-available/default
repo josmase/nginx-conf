@@ -1,0 +1,10 @@
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server ipv6only=on;    
+    root /var/www/html;
+
+    include /etc/nginx/snippets/certbot.conf;
+
+    # Redirect all HTTP requests to HTTPS with a 301 Moved Permanently response.
+    return 301 https://$host$request_uri;
+}
